@@ -4,3 +4,8 @@
 !.emacs.d/
 !.gitignore
 /.emacs.d/backups
+/.emacs.d/auto-save-list/
+/.emacs.d/ede-projects.el
+/.emacs.d/eshell/history
+/.emacs.d/projectile-bookmarks.eld
+/.emacs.d/session.*
