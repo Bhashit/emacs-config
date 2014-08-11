@@ -1,6 +1,7 @@
 ; enable loading of custom packages/modules from ~/.emacs.d
 (add-to-list 'load-path "~/.emacs.d")
 
+; get in the common-lisp for some good functionality
 (require 'cl)
 
 ; starting with version 24, emacs has its own package management system
@@ -11,7 +12,7 @@
 (require 'package)
 
 (defvar all-cool-packages
-  '(scala-mode2 ensime sbt-mode projectile markdown-mode clojure-mode flycheck)
+  '(scala-mode2 ensime sbt-mode projectile markdown-mode clojure-mode flycheck dirtree)
   "The list of packages to ensure that they are installed whenever emacs is launched")
 
 (defun all-cool-packages-installed-p ()
@@ -30,6 +31,9 @@
   (message "%s" "Refreshing packages done")
   (mapc #'install-the-cool-package all-cool-packages))
 
+;; enable the dirtree mode. I am not sure why this is not enabled
+;; by the package manager automatically
+(require 'dirtree)
 
 ; save all backups inside the ~/.emacs.d/backups instead of having them sprinkled around1
 (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
