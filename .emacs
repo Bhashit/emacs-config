@@ -1,13 +1,35 @@
 ; enable loading of custom packages/modules from ~/.emacs.d
 (add-to-list 'load-path "~/.emacs.d")
 
+(require 'cl)
+
 ; starting with version 24, emacs has its own package management system
 ; called ELPA (emacs lisp package archive) which can automate package
 ; management
-(when (>= emacs-major-version 24)
-  (require 'package)
-  (package-initialize)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t))
+(package-initialize)
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(require 'package)
+
+(defvar all-cool-packages
+  '(scala-mode2 ensime sbt-mode projectile markdown-mode clojure-mode flycheck)
+  "The list of packages to ensure that they are installed whenever emacs is launched")
+
+(defun all-cool-packages-installed-p ()
+  ;; the #' instead of just a ' means that the passed symbol will always
+  ;; be a function.
+  (every #'package-installed-p all-cool-packages))
+
+(defun install-the-cool-package (package)
+  (unless (package-installed-p package)
+    (package-install package)))
+
+; If not all cool packages are installed, install the missing ones now
+(unless (all-cool-packages-installed-p)
+  (message "%s" "Refreshing the package database to check for new versions")
+  (package-refresh-contents)
+  (message "%s" "Refreshing packages done")
+  (mapc #'install-the-cool-package all-cool-packages))
+
 
 ; save all backups inside the ~/.emacs.d/backups instead of having them sprinkled around1
 (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
@@ -66,12 +88,23 @@
 ; sbt, rebar and bundler projects
 (projectile-global-mode)
 
+;; delete/replace selection when key is presses
+(delete-selection-mode t)
+
+;; reduce the frequency of garbage collection by making it happen on
+;; each 50MB of allocated data (the default is on every 0.76MB)
+(setq gc-cons-threshold 50000000)
+
 ; enable ensime mode whenever we are working with scala code (using scala-mode-2)
 (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
 
 ; By default, emacs inserts tabs instead of spaces whenever it indents a region
 ; for ex. when using the indent-region command. Turn that off.
 (setq-default indent-tabs-mode nil)
+
+;; auto-asscociate .md and .markdown files to markdown-mode
+(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
 
 ; replace the normal text search with the regex search. Bind the original commands
 ; to something else
