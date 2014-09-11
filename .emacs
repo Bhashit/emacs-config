@@ -38,6 +38,10 @@
 ; save all backups inside the ~/.emacs.d/backups instead of having them sprinkled around1
 (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
 
+
+; Always use spaces instead of tabs
+(setq-default indent-tabs-mode nil)
+
 ; when in a window system, display a better name for the frame, and
 ; disable the annoying blinking cursor
 (when window-system
@@ -131,3 +135,6 @@
 ; between buffers
 (global-set-key (kbd "M-<left>") 'previous-buffer)
 (global-set-key (kbd "M-<right>") 'next-buffer)
+
+; use shift-tab to decrease indent
+(global-set-key (kbd "<backtab>") 'decrease-left-margin)
