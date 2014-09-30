@@ -105,6 +105,8 @@
 
 ; enable ensime mode whenever we are working with scala code (using scala-mode-2)
 (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
+(add-hook 'java-mode-hook 'ensime-scala-mode-hook)
+
 
 ; By default, emacs inserts tabs instead of spaces whenever it indents a region
 ; for ex. when using the indent-region command. Turn that off.
@@ -113,6 +115,30 @@
 ;; auto-asscociate .md and .markdown files to markdown-mode
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+
+;;;; Custom Functions
+
+(defun kill-this-buffer-and-close-window ()
+  "Kill this buffer, and if there are multiple open windows, close this window as well"
+  (interactive)
+  (if (one-window-p)           ; if there is only one window open
+      (kill-this-buffer)       ; then kill this buffer,
+    (kill-buffer-and-window))) ; otherwise, kill the buffer and close its window as well
+
+(defun kill-other-buffer-and-close-window ()
+  (interactive)
+  (other-window 1)
+  (kill-this-buffer-and-close-window))
+
+;;;; Key Bindings
+
+; use Ctrl+F4 to kill current buffer, and close its window if there are multiple
+; open windows (similar to closing a tab)
+(global-set-key (kbd "C-<f4>") 'kill-this-buffer-and-close-window)
+
+; Use Ctrl+Shift+F4 to kill the buffer in the next window. If there are multiple
+; windows open, close the window of that other buffer as well.
+(global-set-key (kbd "C-S-<f4>") 'kill-other-buffer-and-close-window)
 
 ; replace the normal text search with the regex search. Bind the original commands
 ; to something else
