@@ -12,7 +12,7 @@
 (require 'package)
 
 (defvar all-cool-packages
-  '(scala-mode2 ensime sbt-mode projectile markdown-mode clojure-mode flycheck dirtree)
+  '(scala-mode2 ensime sbt-mode projectile markdown-mode clojure-mode flycheck dirtree zenburn-theme)
   "The list of packages to ensure that they are installed whenever emacs is launched")
 
 (defun all-cool-packages-installed-p ()
@@ -107,10 +107,13 @@
 (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
 (add-hook 'java-mode-hook 'ensime-scala-mode-hook)
 
+; associate java files with scala mode
+(add-to-list 'auto-mode-alist '("\\.java\\'" . scala-mode))
 
 ; By default, emacs inserts tabs instead of spaces whenever it indents a region
 ; for ex. when using the indent-region command. Turn that off.
 (setq-default indent-tabs-mode nil)
+
 
 ;; auto-asscociate .md and .markdown files to markdown-mode
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
@@ -129,6 +132,16 @@
   (interactive)
   (other-window 1)
   (kill-this-buffer-and-close-window))
+
+(defun open-or-goto-terminal-buffer ()
+  "If an asni-term buffer exists, switch to it. If it doesn't create a new one and switch."
+  (interactive)
+  (if (not (get-buffer "*ansi-term*"))
+      (progn
+        (split-window-sensibly (selected-window))
+        (other-window 1)
+        (ansi-term (getenv "SHELL")))
+    (switch-to-buffer-other-window "*ansi-term*")))
 
 ;;;; Key Bindings
 
@@ -164,3 +177,6 @@
 
 ; use shift-tab to decrease indent
 (global-set-key (kbd "<backtab>") 'decrease-left-margin)
+
+; use a custom command to switch to the terminal buffer (calls custom func)
+(global-set-key (kbd "C-c t") 'open-or-goto-terminal-buffer)
