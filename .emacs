@@ -11,25 +11,38 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (require 'package)
 
-(defvar all-cool-packages
-  '(scala-mode2 ensime sbt-mode projectile markdown-mode clojure-mode flycheck dirtree zenburn-theme)
+(defvar required-packages
+  '(scala-mode2
+    ensime
+    sbt-mode
+    projectile
+    markdown-mode
+    clojure-mode
+    cider
+    flycheck
+    dirtree
+    goto-last-change
+    rainbow-delimiters
+    cyberpunk-theme
+    clues-theme
+    purple-haze-theme
+    color-theme-sanityinc-tomorrow)
   "The list of packages to ensure that they are installed whenever emacs is launched")
 
-(defun all-cool-packages-installed-p ()
+(defun all-required-packages-installed-p ()
   ;; the #' instead of just a ' means that the passed symbol will always
   ;; be a function.
-  (every #'package-installed-p all-cool-packages))
+  (every #'package-installed-p required-packages))
 
-(defun install-the-cool-package (package)
+(defun install-package (package)
   (unless (package-installed-p package)
     (package-install package)))
 
-; If not all cool packages are installed, install the missing ones now
-(unless (all-cool-packages-installed-p)
+(unless (all-required-packages-installed-p)
   (message "%s" "Refreshing the package database to check for new versions")
   (package-refresh-contents)
   (message "%s" "Refreshing packages done")
-  (mapc #'install-the-cool-package all-cool-packages))
+  (mapc #'install-package required-packages))
 
 ;; enable the dirtree mode. I am not sure why this is not enabled
 ;; by the package manager automatically
@@ -38,7 +51,6 @@
 ; save all backups inside the ~/.emacs.d/backups instead of having them sprinkled around1
 (setq backup-directory-alist `(("." . ,(concat user-emacs-directory "backups"))))
 
-
 ; Always use spaces instead of tabs
 (setq-default indent-tabs-mode nil)
 
@@ -46,14 +58,14 @@
 ; disable the annoying blinking cursor
 (when window-system
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
-  (blink-cursor-mode -1))
+  (blink-cursor-mode -1)
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1))
 
 ; disable the splash screen and the startup echo area message
 (setq inhibit-startup-message t
       inhibit-startup-echo-area-message t)
-
-; auto-indent on pressing enter
-(define-key global-map (kbd "RET") 'newline-and-indent)
 
 ; Change the 'yes or no' prompt with a 'y or n' prompt
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -61,14 +73,11 @@
 ; enable showing line numbers
 (global-linum-mode 1)
 
-(load-theme 'misterioso)
+; load the named theme. The seconds arg ensures that emacs doesn't ask you
+; any questions about whether you want to load the executable code from the
+; theme or not.
+(load-theme 'cyberpunk t)
 
-; do not show the toolbar
-(tool-bar-mode -1)
-; do not show the menu bar
-;(menu-bar-mode -1)
-; do now show the scroll bars
-(scroll-bar-mode -1)
 
 ; enable IDO mode. IDO makes switching between buffers/files very easy by enabling partial matches
 (ido-mode 1)
@@ -103,9 +112,25 @@
 ;; each 50MB of allocated data (the default is on every 0.76MB)
 (setq gc-cons-threshold 50000000)
 
+;; Forces the messages to 0, and kills the *Messages* buffer, disabling it
+;; on startup.
+(setq-default message-log-max nil)
+(kill-buffer "*Messages*")
+
 ; enable ensime mode whenever we are working with scala code (using scala-mode-2)
 (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
 (add-hook 'java-mode-hook 'ensime-scala-mode-hook)
+
+; enable spell-check and auto-fill mode to text modes
+(add-hook 'markdown-mode-hook 'auto-fill-mode)
+(add-hook 'text-mode-hook 'flyspell-mode)
+
+; enable rainbow delimiters for programming language modes
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+; sub-word (camel-case) navigation
+(add-hook 'text-mode-hook 'subword-mode)
+(add-hook 'prog-mode-hook 'subword-mode)
 
 ; associate java files with scala mode
 (add-to-list 'auto-mode-alist '("\\.java\\'" . scala-mode))
@@ -113,7 +138,6 @@
 ; By default, emacs inserts tabs instead of spaces whenever it indents a region
 ; for ex. when using the indent-region command. Turn that off.
 (setq-default indent-tabs-mode nil)
-
 
 ;; auto-asscociate .md and .markdown files to markdown-mode
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
@@ -134,16 +158,16 @@
   (kill-this-buffer-and-close-window))
 
 (defun open-or-goto-terminal-buffer ()
-  "If an asni-term buffer exists, switch to it. If it doesn't create a new one and switch."
+  "If an ansi-term buffer exists, switch to it. If it doesn't create a new one and switch."
   (interactive)
   (if (not (get-buffer "*ansi-term*"))
-      (progn
-        (split-window-sensibly (selected-window))
-        (other-window 1)
-        (ansi-term (getenv "SHELL")))
-    (switch-to-buffer-other-window "*ansi-term*")))
+      (ansi-term (getenv "SHELL"))
+    (switch-to-buffer "*ansi-term*")))
 
 ;;;; Key Bindings
+
+; auto-indent on pressing enter
+(define-key global-map (kbd "RET") 'newline-and-indent)
 
 ; use Ctrl+F4 to kill current buffer, and close its window if there are multiple
 ; open windows (similar to closing a tab)
@@ -180,3 +204,7 @@
 
 ; use a custom command to switch to the terminal buffer (calls custom func)
 (global-set-key (kbd "C-c t") 'open-or-goto-terminal-buffer)
+
+; Set shortcut for jumping to the last change location. C-q was originally
+; bound to 'quoted-insert
+(global-set-key (kbd "C-q") 'goto-last-change)
