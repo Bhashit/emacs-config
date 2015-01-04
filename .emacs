@@ -8,7 +8,8 @@
 ; called ELPA (emacs lisp package archive) which can automate package
 ; management
 (package-initialize)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(add-to-list 'package-archives '("melpa-stable" . "http://melpa-stable.milkbox.net/packages/"))
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 (require 'package)
 
 (defvar required-packages
@@ -19,6 +20,9 @@
     markdown-mode
     clojure-mode
     cider
+    company
+    go-mode
+    elixir-mode
     flycheck
     dirtree
     goto-last-change
@@ -127,6 +131,11 @@
 
 ; enable rainbow delimiters for programming language modes
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+;; turn on eldoc mode for cider
+(add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+(add-hook 'cider-repl-mode-hook 'company-mode)
+(add-hook 'cider-mode-hook 'company-mode)
 
 ; sub-word (camel-case) navigation
 (add-hook 'text-mode-hook 'subword-mode)
