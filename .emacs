@@ -1,6 +1,3 @@
-; enable loading of custom packages/modules from ~/.emacs.d
-(add-to-list 'load-path "~/.emacs.d")
-
 ; get in the common-lisp for some good functionality
 (require 'cl)
 
@@ -24,6 +21,7 @@
     ess
     go-mode
     elixir-mode
+    erlang
     slime
     flycheck
     dirtree
@@ -104,7 +102,7 @@
 ; show matching parens and other characters
 (show-paren-mode 1)
 ; Insert matching brackets, parens etc. automatically. Can be customized as well. Exactly
-; which brackets are auto-closed depends on the current major-mode's syntax table
+; which brackets are auto-closed depends on the current major-mode's syntax table.
 (electric-pair-mode 1)
 
 ; projectile introduces a concept of projects. Projects are identified by
@@ -112,7 +110,7 @@
 ; sbt, rebar and bundler projects
 (projectile-global-mode)
 
-;; delete/replace selection when key is presses
+;; delete/replace selection when a key is pressed
 (delete-selection-mode t)
 
 ;; reduce the frequency of garbage collection by making it happen on
@@ -163,6 +161,11 @@
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
 
+;; Erlang setup
+(setq erlang-root-dir "/usr/lib/erlang")
+(setq exec-path (cons "/usr/lib/erlang/bin" exec-path))
+(require 'erlang-start)
+;; end erlang setup
 
 ;; some settings for common-lisp
 (add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
@@ -244,6 +247,7 @@
 
 ; kill buffers without confirmation if they are not modified
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
